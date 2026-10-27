@@ -1,0 +1,192 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MoonStreamHD</title><link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0e0d12"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#0e0d12;--card:#17151d;--line:#2a2733;--txt:#f1eef5;--mut:#a8a2b3;--acc:#e0102f}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 Inter,system-ui,sans-serif;padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:#0e0d12ee;border-bottom:2px solid var(--acc);backdrop-filter:blur(8px)}
+.logo{font-weight:900;font-size:20px;color:#ff3b52;white-space:nowrap}.logo b{color:#fff}
+input[type=search]{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:10px 16px;font:inherit;font-size:16px}
+button{font:inherit;cursor:pointer}.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none}
+.chip{flex:none;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:7px 14px}.chip.on{background:var(--acc);border-color:var(--acc);font-weight:700}
+#hero{position:relative;margin:12px 16px 0;border-radius:14px;overflow:hidden;background:var(--card)}
+#ht{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hs{position:relative;flex:0 0 100%;scroll-snap-align:start;height:clamp(320px,42vw,480px);display:flex;align-items:flex-end;overflow:hidden}
+.hb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(24px) brightness(.55);transform:scale(1.2)}
+.hp{position:absolute;right:6%;top:50%;transform:translateY(-50%);height:76%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;box-shadow:0 20px 50px #000a}
+.hc{position:relative;padding:20px 20px 46px;max-width:560px}.hc h2{margin:0 0 6px;font-size:clamp(24px,4vw,42px);line-height:1.1}.hc p{margin:0 0 14px;color:#d6d0de;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#hd{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:6px}#hd i{width:8px;height:8px;border-radius:9px;background:#fff6;cursor:pointer;transition:width .25s}#hd i.on{width:26px;background:var(--acc)}
+@media(max-width:700px){.hp{display:none}.hb{filter:none;transform:none;object-position:center top}.hs::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#0e0d12f0 8%,#0e0d1200 70%)}.hc{z-index:1}}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;padding:4px 16px 40px}
+.card{background:none;border:0;color:var(--txt);text-align:left;padding:0}.card img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:var(--card);display:block}
+.card span{display:block;margin-top:6px;font-weight:600;font-size:13px}.mut{color:var(--mut);padding:0 16px}
+#dl{padding:12px 16px}.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.row img{width:56px;aspect-ratio:2/3;object-fit:cover;border-radius:6px}.ri{flex:1;min-width:0}.ri small{color:var(--mut);display:block}progress{width:100%;accent-color:var(--acc)}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:999px;padding:10px 20px;font-weight:700}.btn.g{background:var(--card);border:1px solid var(--line)}.btn:disabled{opacity:.7}
+nav#bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:#0e0d12f2;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav#bar button{flex:1;background:none;border:0;color:var(--mut);padding:12px 0;font-size:12px}nav#bar button.on{color:#fff;font-weight:700;box-shadow:inset 0 2px var(--acc)}
+#m{position:fixed;inset:0;z-index:10;background:#000d;overflow:auto}.box{max-width:900px;margin:auto;background:var(--bg);min-height:100%}
+#ef{width:100%;aspect-ratio:16/9;border:0;background:#000;display:block}video{width:100%;aspect-ratio:16/9;background:#000;display:block}.in{padding:16px}.in h2{margin:0 0 4px;font-size:24px}.acts{display:flex;flex-wrap:wrap;gap:10px}
+#acct{padding:16px;max-width:520px;margin:auto}#acct input{width:100%;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px;font:inherit;font-size:16px;margin:0 0 10px}
+#toast{position:fixed;left:16px;right:16px;bottom:84px;z-index:20;background:#2a2733;border-radius:10px;padding:12px 16px}
+:focus-visible{outline:2px solid #ff3b52;outline-offset:3px}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header><div class="logo">MoonStream<b>HD</b></div><input id="q" type="search" placeholder="Search movies &amp; shows..." aria-label="Search"></header>
+<section id="hero" hidden aria-label="Featured"><div id="ht"></div><div id="hd"></div></section>
+<div class="chips" id="genres"></div><main id="grid"></main><div id="dl" hidden></div>
+<section id="acct" hidden><h2>Account</h2>
+<form id="af"><p class="mut" style="padding:0">Sign in to download. Your first month of Download membership is free.</p>
+<input id="ae1" type="email" placeholder="Email" autocomplete="email" required><input id="ap" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" minlength="6" required>
+<div class="acts"><button class="btn">Sign in</button><button type="button" class="btn g" id="reg">Create account</button><button type="button" class="btn g" id="forgot">Forgot password</button></div></form>
+<div id="ai" hidden><p><b id="ae"></b></p><p id="as"></p>
+<div class="acts"><button class="btn" id="sub">Start free month</button><button class="btn g" id="bill">Manage billing</button><button class="btn g" id="out">Sign out</button></div></div>
+<p id="aerr" role="alert" style="color:#ff8a98"></p></section>
+<nav id="bar"><button data-t="home" class="on">Home</button><button data-t="wl">My List</button><button data-t="dl">Downloads</button><button data-t="acct">Account</button></nav>
+<div id="m" hidden><div class="box"><iframe id="ef" hidden title="Video player" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"></iframe><video id="v" controls playsinline></video><div class="in"><h2 id="mt"></h2><p class="mut" id="md" style="padding:0"></p><p id="ms"></p>
+<div class="acts"><button class="btn" id="wlb"></button><button class="btn g" id="dlb" hidden></button><button class="btn g" id="x">Close</button></div></div></div></div>
+<div id="toast" hidden role="status"></div>
+<script type="module">
+import {db,auth,functions,PRICE_ID,PRICE_TEXT,embedUrl,configError,errMsg} from './firebase.js';
+import {collection,query,where,getDocs,getDoc,doc,addDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {httpsCallable} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js';
+if(configError)throw new Error(configError);   // firebase.js already shows the setup message on screen
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const jget=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},jset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let all=[],genre='',tab=navigator.onLine?'home':'dl',cur=null,hls=null,wl=jget('msh-wl',[]),dl=jget('msh-dl',{}),st={},hi=0,hn=0,hold=false,tt,loadErr='';
+const KEY=id=>new URL('offline/'+id,location.href).href,fmt=n=>n>1e9?(n/1e9).toFixed(1)+' GB':Math.round(n/1e6)+' MB';
+function toast(m){const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,4500)}
+function render(){
+  const q=$('#q').value.trim().toLowerCase();
+  const l=all.filter(t=>(tab==='home'||wl.includes(t.id))&&(!genre||t.genres.includes(genre))&&(!q||t.title.toLowerCase().includes(q)));
+  $('#grid').innerHTML=l.map(t=>`<button class="card" data-id="${esc(t.id)}"><img loading="lazy" src="${esc(t.poster)}" alt=""><span>${esc(t.title)}</span></button>`).join('')||`<p class="mut">${loadErr?esc(loadErr):all.length?'Nothing here yet.':'No titles loaded. Are you offline? Open Downloads.'}</p>`;
+}
+function chips(){const g=[...new Set(all.flatMap(t=>t.genres))].sort();
+  $('#genres').innerHTML=['All',...g].map(x=>`<button class="chip${(x==='All'&&!genre)||x===genre?' on':''}" data-g="${esc(x==='All'?'':x)}">${esc(x)}</button>`).join('')}
+function renderDl(){
+  const ip=Object.keys(st).map(id=>{const t=all.find(i=>i.id===id)||{};return `<div class="row"><img src="${esc(t.poster)}" alt=""><div class="ri"><b>${esc(t.title)}</b><progress data-p="${esc(id)}" max="1" value="${st[id].p}"></progress></div></div>`}).join('');
+  const done=Object.values(dl).map(d=>`<div class="row"><img src="${esc(d.poster)}" alt=""><div class="ri"><b>${esc(d.title)}</b><small>${fmt(d.size)}</small></div><button class="btn" data-play="${esc(d.id)}">Play</button><button class="btn g" data-rm="${esc(d.id)}">Remove</button></div>`).join('');
+  $('#dl').innerHTML=ip+done||'<p class="mut" style="padding:0">No downloads yet. Open a title and tap Download.</p>';
+}
+function show(){
+  $$('#bar button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+  $('#hero').hidden=tab!=='home'||!hn;$('#genres').hidden=tab!=='home';$('#grid').hidden=tab==='dl'||tab==='acct';$('#dl').hidden=tab!=='dl';$('#acct').hidden=tab!=='acct';
+  tab==='dl'?renderDl():tab==='acct'?renderAcct():render();
+}
+function hero(){
+  const f=all.filter(t=>t.featured),l=(f.length?f:all).slice(0,5);hn=l.length;
+  $('#ht').innerHTML=l.map(t=>`<div class="hs"><img class="hb" src="${esc(t.poster)}" alt=""><img class="hp" src="${esc(t.poster)}" alt=""><div class="hc"><h2>${esc(t.title)}</h2><p>${esc(t.synopsis)}</p><button class="btn" data-id="${esc(t.id)}">&#9654; Watch now</button></div></div>`).join('');
+  $('#hd').innerHTML=l.map((_,i)=>`<i data-i="${i}"></i>`).join('');dots();
+}
+const dots=()=>$$('#hd i').forEach((d,i)=>d.classList.toggle('on',i===hi));
+const go=i=>{hi=(i+hn)%hn;$('#ht').scrollTo({left:hi*$('#ht').clientWidth,behavior:'smooth'});dots()};
+$('#ht').onscroll=()=>{hi=Math.round($('#ht').scrollLeft/($('#ht').clientWidth||1));dots()};
+$('#hd').onclick=e=>{if(e.target.dataset.i)go(+e.target.dataset.i)};
+['mouseenter','touchstart'].forEach(n=>$('#hero').addEventListener(n,()=>hold=true,{passive:true}));
+['mouseleave','touchend'].forEach(n=>$('#hero').addEventListener(n,()=>hold=false,{passive:true}));
+if(!matchMedia('(prefers-reduced-motion:reduce)').matches)setInterval(()=>{if(hn>1&&!hold&&tab==='home'&&!document.hidden&&$('#m').hidden)go(hi+1)},6000);
+async function play(u,off){
+  const v=$('#v'),f=$('#ef'),e=off?null:embedUrl(u);
+  f.hidden=!e;v.hidden=!!e;
+  if(e){f.src=e;return}
+  if(!off&&!/^https:\/\//.test(u||''))return;
+  if(!off&&u.includes('.m3u8')&&!v.canPlayType('application/vnd.apple.mpegurl')){
+    const {default:H}=await import('https://cdn.jsdelivr.net/npm/hls.js@1.5.8/+esm');
+    if(H.isSupported()){hls=new H();hls.loadSource(u);hls.attachMedia(v);return}}
+  v.src=u;
+}
+function dlBtn(){const t=cur,b=$('#dlb'),s=st[t.id];b.hidden=!t.hasDownload&&!dl[t.id];b.disabled=!!s;
+  b.textContent=s?`Downloading ${Math.round(s.p*100)}%`:dl[t.id]?'Downloaded \u2713':'Download'}
+function openT(t,off){
+  cur=t;$('#m').hidden=false;$('#mt').textContent=t.title;
+  $('#md').textContent=[t.year,t.type,(t.genres||[]).join(', ')].filter(Boolean).join(' \u00b7 ');
+  $('#ms').textContent=t.synopsis||'';$('#wlb').textContent=wl.includes(t.id)?'In My List':'Add to My List';dlBtn();
+  play(off?KEY(t.id):t.videoUrl,off);
+}
+function closeT(){const v=$('#v');$('#ef').removeAttribute('src');v.pause();v.removeAttribute('src');v.load();if(hls){hls.destroy();hls=null}$('#m').hidden=true}
+async function download(t){
+  if(st[t.id]||dl[t.id])return;
+  if(!user){toast('Sign in to download.');closeT();tab='acct';show();return}
+  if(!member){toast('Downloads are for members. Your first month is free.');closeT();tab='acct';show();return}
+  let url;try{url=(await getDoc(doc(db,'titles',t.id,'private','download'))).data()?.url}catch(e){}
+  if(!url)return toast('This download is not available right now.');
+  try{
+    const {quota,usage}=await navigator.storage.estimate();
+    navigator.storage.persist&&navigator.storage.persist();
+    st[t.id]={p:0};dlBtn();
+    const r=await fetch(url);if(!r.ok)throw 0;
+    const total=+r.headers.get('Content-Length')||0,rd=r.body.getReader(),parts=[];let got=0;
+    if(total&&quota-usage<total*1.1){delete st[t.id];dlBtn();return toast('Not enough free storage on this device.')}
+    for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;
+      st[t.id].p=total?got/total:0;const b=$(`[data-p="${CSS.escape(t.id)}"]`);if(b)b.value=st[t.id].p;if(!$('#m').hidden&&cur.id===t.id)dlBtn()}
+    const blob=new Blob(parts,{type:r.headers.get('Content-Type')||'video/mp4'}),c=await caches.open('msh-downloads');
+    await c.put(KEY(t.id),new Response(blob,{headers:{'Content-Type':blob.type}}));
+    try{const pr=new Request(t.poster,{mode:'no-cors'});await c.put(pr,await fetch(pr))}catch(e){}
+    dl[t.id]={id:t.id,title:t.title,poster:t.poster,size:blob.size,year:t.year,type:t.type,genres:t.genres,synopsis:t.synopsis};jset('msh-dl',dl);
+    toast('Downloaded. Find it in Downloads.');
+  }catch(e){console.error('Download failed:',e);toast('Download failed: check the video URL, CORS permissions, and available device storage.')}
+  delete st[t.id];if(cur)dlBtn();if(tab==='dl')renderDl();
+}
+async function remove(id){const c=await caches.open('msh-downloads');await c.delete(KEY(id));try{await c.delete(new Request(dl[id].poster,{mode:'no-cors'}))}catch(e){}delete dl[id];jset('msh-dl',dl);renderDl()}
+$('#grid').onclick=e=>{const b=e.target.closest('.card');if(b)openT(all.find(t=>t.id===b.dataset.id))};
+$('#ht').onclick=e=>{const b=e.target.closest('.btn');if(b)openT(all.find(t=>t.id===b.dataset.id))};
+$('#dl').onclick=e=>{const p=e.target.dataset.play,r=e.target.dataset.rm;if(p){if(Date.now()>jget('msh-until',0)){toast('Your membership has ended. Renew to play downloads.');tab='acct';show();return}openT(dl[p],true)}if(r&&confirm('Remove this download?'))remove(r)};
+$('#genres').onclick=e=>{const b=e.target.closest('[data-g]');if(b){genre=b.dataset.g;chips();render()}};
+$('#bar').onclick=e=>{const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;show()}};
+$('#q').oninput=()=>{if(tab==='dl'||tab==='acct')tab='home';show()};$('#x').onclick=closeT;
+document.onkeydown=e=>{if(e.key==='Escape'&&!$('#m').hidden)closeT()};
+$('#wlb').onclick=()=>{wl=wl.includes(cur.id)?wl.filter(i=>i!==cur.id):[...wl,cur.id];jset('msh-wl',wl);$('#wlb').textContent=wl.includes(cur.id)?'In My List':'Add to My List';if(tab==='wl')render()};
+$('#dlb').onclick=()=>dl[cur.id]?toast('Already downloaded. Manage it in Downloads.'):download(cur);
+try{
+  const s=await getDocs(query(collection(db,'titles'),where('published','==',true)));
+  all=s.docs.map(d=>({id:d.id,genres:[],...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+}catch(e){console.error(e);loadErr='Could not load titles: '+errMsg(e)}
+// ===== Accounts + Download membership =====
+let user=null,member=false,sub=null;
+const fdate=s=>new Date(s*1000).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+const aerr=m=>$('#aerr').textContent=m||'';
+async function refreshMember(force){
+  if(!user){member=false;sub=null;return}
+  try{
+    member=(await user.getIdTokenResult(force)).claims.stripeRole==='member';
+    const s=await getDocs(query(collection(db,'customers',user.uid,'subscriptions'),where('status','in',['active','trialing'])));
+    sub=s.docs[0]?.data()||null;
+    jset('msh-until',sub?(sub.current_period_end?.seconds||0)*1000:0);
+  }catch(e){console.error(e)}
+}
+function renderAcct(){
+  $('#af').hidden=!!user;$('#ai').hidden=!user;if(!user)return;
+  $('#ae').textContent=user.email;
+  $('#as').textContent=sub?.status==='trialing'?`Free trial until ${fdate(sub.current_period_end.seconds)}. Billing starts then${PRICE_TEXT?' ('+PRICE_TEXT+')':''} unless you cancel.`
+    :sub?`Download membership is active. Renews ${fdate(sub.current_period_end.seconds)}.`
+    :member?'Download membership is active.':`No download membership yet. Your first month is free${PRICE_TEXT?', then '+PRICE_TEXT:''}.`;
+  $('#sub').hidden=!!(sub||member);$('#bill').hidden=!(sub||member);
+}
+async function subscribe(){
+  aerr();if(!PRICE_ID)return aerr('Membership is not set up yet: PRICE_ID is empty in firebase.js (see README, Stripe section).');
+  $('#sub').disabled=true;
+  try{
+    const first=(await getDocs(collection(db,'customers',user.uid,'subscriptions'))).empty;   // free month only for first-time members
+    const ref=await addDoc(collection(db,'customers',user.uid,'checkout_sessions'),{price:PRICE_ID,success_url:location.origin+location.pathname+'?member=1',cancel_url:location.href,...(first?{trial_period_days:30}:{})});
+    onSnapshot(ref,s=>{const d=s.data()||{};if(d.error){aerr(d.error.message);$('#sub').disabled=false}if(d.url)location.assign(d.url)});
+  }catch(e){aerr('Could not start checkout: '+errMsg(e));$('#sub').disabled=false}
+}
+async function portal(){
+  try{const r=await httpsCallable(functions,'ext-firestore-stripe-payments-createPortalLink')({returnUrl:location.href});location.assign(r.data.url)}
+  catch(e){aerr('Could not open billing: '+errMsg(e))}
+}
+$('#af').onsubmit=async e=>{e.preventDefault();aerr();try{await signInWithEmailAndPassword(auth,$('#ae1').value,$('#ap').value)}catch(x){aerr('Could not sign in: '+errMsg(x))}};
+$('#reg').onclick=async()=>{aerr();if(!$('#af').reportValidity())return;try{await createUserWithEmailAndPassword(auth,$('#ae1').value,$('#ap').value)}catch(x){aerr('Could not create account: '+errMsg(x))}};
+$('#forgot').onclick=async()=>{if(!$('#ae1').value)return aerr('Type your email first.');try{await sendPasswordResetEmail(auth,$('#ae1').value);aerr('Password reset email sent.')}catch(x){aerr(errMsg(x))}};
+$('#out').onclick=()=>signOut(auth);$('#sub').onclick=subscribe;$('#bill').onclick=portal;
+onAuthStateChanged(auth,async u=>{
+  user=u;await refreshMember(true);if(tab==='acct')renderAcct();
+  if(user&&new URLSearchParams(location.search).has('member')){      // back from Stripe: wait for the membership to switch on
+    history.replaceState(null,'',location.pathname);tab='acct';show();
+    for(let n=0;n<10&&!member;n++){await new Promise(r=>setTimeout(r,3000));await refreshMember(true);renderAcct()}
+  }
+});
+hero();chips();show();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>
