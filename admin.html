@@ -1,0 +1,75 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>MoonStreamHD Admin</title>
+<style>
+:root{--bg:#0e0d12;--card:#17151d;--line:#2a2733;--txt:#f1eef5;--mut:#a8a2b3;--acc:#e0102f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 Inter,system-ui,sans-serif;padding:16px;max-width:860px;margin:auto}
+h1{font-size:20px;color:#ff3b52}input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px;font:inherit;margin:4px 0 12px}
+label{font-size:13px;color:var(--mut)}button{font:inherit;cursor:pointer;background:var(--acc);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:700}
+button.g{background:var(--card);border:1px solid var(--line)}.row{display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}
+.row img{width:42px;aspect-ratio:2/3;object-fit:cover;border-radius:4px}.row b{flex:1;min-width:0}.ck{display:flex;gap:8px;align-items:center;margin-bottom:12px}.ck input{width:auto;margin:0}
+.err{color:#ff8a98}.top{display:flex;justify-content:space-between;align-items:center}
+</style></head><body>
+<div class="top"><h1>MoonStreamHD Admin</h1><button class="g" id="out" hidden>Sign out</button></div>
+<form id="lf"><label>Email</label><input id="em" type="email" required><label>Password</label><input id="pw" type="password" required><button>Sign in</button></form>
+<p id="msg" class="err"></p>
+<section id="app" hidden>
+<form id="f"><label>Title *</label><input id="title" required>
+<label>Year</label><input id="year" type="number" min="1900" max="2100">
+<label>Type</label><select id="type"><option>Movie</option><option>TV Show</option></select>
+<label>Genres (comma separated)</label><input id="genres" placeholder="Action, Drama">
+<label>Poster image URL (https) *</label><input id="poster" type="url" required>
+<label>Video link * : .mp4 / .m3u8 file, or a YouTube / Vimeo / Bunny / Cloudflare Stream link. You can paste the whole embed code (&lt;iframe ...&gt;) too</label><input id="videoUrl" type="text" required>
+<label>Download URL (https, .mp4). Members only. Leave empty to turn downloads off</label><input id="downloadUrl" type="url">
+<label>Synopsis</label><textarea id="synopsis" rows="3"></textarea>
+<label>Source / licence (where this video comes from and your right to stream it) *</label><input id="sourceNote" required>
+<div class="ck"><input id="published" type="checkbox" checked><label for="published" style="margin:0">Published (visible in the app)</label></div>
+<div class="ck"><input id="featured" type="checkbox"><label for="featured" style="margin:0">Featured (shows in the home slider)</label></div>
+<button id="save">Save title</button> <button type="button" class="g" id="reset">Clear</button></form>
+<h2 style="font-size:17px;margin-top:30px">All titles</h2><div id="list"></div></section>
+<script type="module">
+import {auth,db,embedUrl,EMBED_HOSTS,configError,errMsg} from './firebase.js';
+import {signInWithEmailAndPassword,signOut,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {collection,doc,getDoc,getDocs,addDoc,setDoc,deleteDoc,serverTimestamp,query,orderBy,deleteField} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+if(configError)throw new Error(configError);   // firebase.js already shows the setup message on screen
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let editId=null,items=[];
+const F=['title','year','type','genres','poster','videoUrl','downloadUrl','synopsis','sourceNote'];
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#msg').textContent='';
+  try{await signInWithEmailAndPassword(auth,$('#em').value,$('#pw').value)}catch(err){$('#msg').textContent='Sign-in failed: '+errMsg(err)}};
+$('#out').onclick=()=>signOut(auth);
+onAuthStateChanged(auth,async u=>{
+  $('#app').hidden=true;$('#lf').hidden=!!u;$('#out').hidden=!u;if(!u)return;
+  let a;try{a=await getDoc(doc(db,'admins',u.uid))}catch(err){$('#msg').textContent='Could not verify admin access: '+errMsg(err);return}
+  if(!a.exists()){$('#msg').textContent='Not an admin. Create a document in the "admins" collection with this ID: '+u.uid;return}
+  $('#app').hidden=false;load();
+});
+async function load(){
+  let s;try{s=await getDocs(query(collection(db,'titles'),orderBy('createdAt','desc')))}catch(err){$('#msg').textContent='Could not load titles: '+errMsg(err);return}
+  items=s.docs.map(d=>({id:d.id,...d.data()}));
+  $('#list').innerHTML=items.map(t=>`<div class="row"><img src="${esc(t.poster)}" alt=""><b>${esc(t.title)} <small style="color:#a8a2b3">${t.published?'':'(draft)'}</small></b><button class="g" data-e="${esc(t.id)}">Edit</button><button class="g" data-d="${esc(t.id)}">Delete</button></div>`).join('')||'<p>No titles yet.</p>';
+}
+$('#list').onclick=async e=>{
+  const ed=e.target.dataset.e,dl=e.target.dataset.d;
+  if(ed){const t=items.find(i=>i.id===ed);editId=ed;F.forEach(k=>$('#'+k).value=k==='genres'?(t.genres||[]).join(', '):(t[k]??''));$('#published').checked=!!t.published;$('#featured').checked=!!t.featured;getDoc(doc(db,'titles',ed,'private','download')).then(s=>$('#downloadUrl').value=s.data()?.url||'').catch(()=>{});scrollTo(0,0)}
+  if(dl&&confirm('Delete this title?')){try{await deleteDoc(doc(db,'titles',dl,'private','download')).catch(()=>{});await deleteDoc(doc(db,'titles',dl));$('#msg').textContent='';load()}catch(err){$('#msg').textContent='Delete failed: '+errMsg(err)}}
+};
+function reset(){editId=null;$('#f').reset();$('#published').checked=true}
+$('#reset').onclick=reset;
+$('#f').onsubmit=async e=>{e.preventDefault();
+  const d={published:$('#published').checked,featured:$('#featured').checked};F.forEach(k=>d[k]=$('#'+k).value.trim());
+  const mm=/<iframe[^>]*\ssrc=["']([^"']+)["']/i.exec(d.videoUrl);if(mm)d.videoUrl=mm[1].replace(/^\/\//,'https://');   // embed code pasted: keep only the link
+  if(!/^https:\/\//.test(d.poster)||!/^https:\/\//.test(d.videoUrl)||(d.downloadUrl&&!/^https:\/\//.test(d.downloadUrl))){$('#msg').textContent='Poster and video URLs must start with https://';return}
+  if(!/\.(mp4|m3u8|webm)$/i.test(d.videoUrl.split(/[?#]/)[0])&&!embedUrl(d.videoUrl)){$('#msg').textContent='That video link is not a video file and its host is not allowed. Allowed embed hosts: '+EMBED_HOSTS.join(', ')+' (edit EMBED_HOSTS in firebase.js to add yours).';return}
+  d.year=d.year?Number(d.year):null;d.genres=d.genres.split(',').map(g=>g.trim()).filter(Boolean);d.updatedAt=serverTimestamp();
+  try{
+    const dlu=d.downloadUrl;delete d.downloadUrl;d.hasDownload=!!dlu;   // the link itself is kept private (members only)
+    let id=editId;
+    if(editId)await setDoc(doc(db,'titles',editId),{...d,downloadUrl:deleteField()},{merge:true});
+    else id=(await addDoc(collection(db,'titles'),{...d,createdAt:serverTimestamp()})).id;
+    const pr=doc(db,'titles',id,'private','download');
+    if(dlu)await setDoc(pr,{url:dlu});else await deleteDoc(pr).catch(()=>{});
+    $('#msg').textContent='';reset();load();
+  }catch(err){$('#msg').textContent='Save failed: '+errMsg(err)}
+};
+</script></body></html>
